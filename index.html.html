@@ -1,0 +1,1757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JHS Offensive Tendencies — DC Simulator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
+
+  :root {
+    --navy: #0a1628;
+    --navy2: #0f1f3d;
+    --steel: #1a2f4e;
+    --gold: #f0b429;
+    --gold2: #d4991f;
+    --red: #e63946;
+    --green: #2d9b5a;
+    --white: #f0f4f8;
+    --gray: #8899aa;
+    --light: #ccd6e0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    min-height: 100vh;
+  }
+
+  header {
+    background: linear-gradient(135deg, var(--navy2), var(--steel));
+    border-bottom: 3px solid var(--gold);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header-left h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+  }
+
+  .header-left p {
+    font-size: 12px;
+    color: var(--gray);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    display: flex;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .stat-pill {
+    background: rgba(240,180,41,0.12);
+    border: 1px solid rgba(240,180,41,0.3);
+    border-radius: 8px;
+    padding: 8px 14px;
+  }
+
+  .stat-pill .num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gold);
+  }
+
+  .stat-pill .lbl {
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .main {
+    display: grid;
+    grid-template-columns: 320px 1fr 300px;
+    gap: 0;
+    height: calc(100vh - 75px);
+  }
+
+  /* LEFT PANEL — Situation Selector */
+  .left-panel {
+    background: var(--navy2);
+    border-right: 1px solid rgba(255,255,255,0.08);
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  .panel-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 14px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(240,180,41,0.3);
+  }
+
+  .control-group {
+    margin-bottom: 18px;
+  }
+
+  .control-label {
+    font-size: 11px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--light);
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .btn:hover { background: rgba(255,255,255,0.12); }
+
+  .btn.active {
+    background: var(--gold);
+    border-color: var(--gold);
+    color: var(--navy);
+  }
+
+  .btn.any { font-style: italic; }
+
+  select {
+    width: 100%;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--white);
+    padding: 9px 12px;
+    border-radius: 6px;
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    appearance: none;
+  }
+
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  input[type=range] {
+    flex: 1;
+    accent-color: var(--gold);
+  }
+
+  .slider-val {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gold);
+    min-width: 70px;
+    text-align: right;
+  }
+
+  .divider {
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+    margin: 20px 0;
+  }
+
+  /* RANDOMIZE BUTTON */
+  .randomize-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #1a3a5c, #0f2a45);
+    border: 2px solid rgba(240,180,41,0.5);
+    border-radius: 8px;
+    color: var(--gold);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .randomize-btn:hover {
+    background: linear-gradient(135deg, #24507a, #1a3a5c);
+    border-color: var(--gold);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px rgba(240,180,41,0.2);
+  }
+  .randomize-btn:active { transform: translateY(0); }
+  .randomize-btn .dice { font-size: 20px; animation: none; }
+  .randomize-btn:hover .dice { animation: spin 0.4s ease; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .offense-display {
+    background: rgba(240,180,41,0.08);
+    border: 1px solid rgba(240,180,41,0.25);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .offense-display-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .offense-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .offense-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .offense-item .ok { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; }
+  .offense-item .ov {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  /* SUBMIT CALL BUTTON */
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #c0392b, #96281b);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(230,57,70,0.3);
+  }
+  .submit-btn:hover {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(230,57,70,0.4);
+  }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-btn:disabled {
+    background: rgba(255,255,255,0.08);
+    color: var(--gray);
+    box-shadow: none;
+    transform: none;
+    cursor: not-allowed;
+  }
+
+  /* RESULT MODAL */
+  .result-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .result-overlay.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .result-modal {
+    background: var(--navy2);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    width: 640px;
+    max-width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s;
+  }
+  .result-overlay.visible .result-modal {
+    transform: scale(1) translateY(0);
+  }
+  .result-modal-header {
+    padding: 24px 28px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .result-modal-header h2 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 24px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .close-btn {
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: var(--gray);
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .close-btn:hover { background: rgba(255,255,255,0.15); color: var(--white); }
+
+  .result-modal-body { padding: 24px 28px; }
+
+  .play-situation-strip {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .sit-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+  }
+  .sit-card .sk { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .sit-card .sv { font-family: 'Barlow Condensed', sans-serif; font-size: 18px; font-weight: 700; color: var(--white); }
+
+  .vs-strip {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .vs-side {
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    padding: 14px;
+  }
+  .vs-side h4 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+  .vs-side.offense h4 { color: var(--red); }
+  .vs-side.defense h4 { color: #7ab0f5; }
+  .vs-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 13px; }
+  .vs-k { color: var(--gray); }
+  .vs-v { font-weight: 600; color: var(--light); font-family: 'Barlow Condensed', sans-serif; font-size: 14px; }
+
+  .vs-divider {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--gray);
+    text-align: center;
+  }
+
+  /* Result outcome */
+  .outcome-box {
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    border: 2px solid;
+    position: relative;
+    overflow: hidden;
+  }
+  .outcome-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+  }
+  .outcome-box.win { border-color: var(--green); background: rgba(45,155,90,0.12); }
+  .outcome-box.loss { border-color: var(--red); background: rgba(230,57,70,0.12); }
+  .outcome-box.neutral { border-color: var(--gold); background: rgba(240,180,41,0.08); }
+
+  .outcome-icon { font-size: 36px; margin-bottom: 8px; }
+  .outcome-headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .outcome-box.win .outcome-headline { color: var(--green); }
+  .outcome-box.loss .outcome-headline { color: var(--red); }
+  .outcome-box.neutral .outcome-headline { color: var(--gold); }
+
+  .outcome-yardage {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--light);
+    margin-bottom: 8px;
+  }
+  .outcome-narrative {
+    font-size: 14px;
+    color: var(--light);
+    line-height: 1.6;
+  }
+
+  .analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .analysis-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .analysis-card h5 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .analysis-card p { font-size: 12px; color: var(--light); line-height: 1.5; }
+
+  .score-bar-wrap { margin-top: 14px; }
+  .score-bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--gray); margin-bottom: 4px; }
+  .score-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+
+  .play-log-section { margin-top: 20px; }
+  .play-log-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(240,180,41,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .play-log { max-height: 200px; overflow-y: auto; }
+  .play-log-entry {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 12px;
+  }
+  .play-log-entry .pl-num { color: var(--gray); min-width: 28px; font-family: 'Barlow Condensed', sans-serif; }
+  .play-log-entry .pl-sit { color: var(--light); min-width: 60px; font-family: 'Barlow Condensed', sans-serif; font-weight: 600; }
+  .play-log-entry .pl-form { color: var(--gold); min-width: 90px; font-size: 11px; }
+  .play-log-entry .pl-result { flex: 1; }
+  .pl-result.win-r { color: var(--red); }
+  .pl-result.def-w { color: var(--green); }
+
+  .record-strip {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    padding: 12px;
+  }
+  .record-item { flex: 1; text-align: center; }
+  .record-item .rn { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 900; }
+  .record-item .rl { font-size: 10px; color: var(--gray); text-transform: uppercase; letter-spacing: 1px; }
+  .record-item.wins .rn { color: var(--green); }
+  .record-item.losses .rn { color: var(--red); }
+  .record-item.neutral-r .rn { color: var(--gold); }
+
+  /* MIDDLE — Field + Tendency Display */
+  .center-panel {
+    background: var(--navy);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .tendency-bar {
+    background: var(--steel);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .tend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .tend-label {
+    font-size: 11px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .tend-badge {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    background: rgba(240,180,41,0.15);
+    border: 1px solid rgba(240,180,41,0.4);
+    color: var(--gold);
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+
+  .tend-badge.danger {
+    background: rgba(230,57,70,0.15);
+    border-color: rgba(230,57,70,0.4);
+    color: var(--red);
+  }
+
+  .tend-badge.safe {
+    background: rgba(45,155,90,0.15);
+    border-color: rgba(45,155,90,0.4);
+    color: var(--green);
+  }
+
+  /* Football field */
+  .field-wrapper {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+  }
+
+  .field {
+    width: 100%;
+    max-width: 680px;
+    position: relative;
+  }
+
+  canvas#fieldCanvas {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+  }
+
+  /* Play list */
+  .plays-section {
+    padding: 0 20px 20px;
+  }
+
+  .plays-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .count-badge {
+    background: var(--gold);
+    color: var(--navy);
+    border-radius: 20px;
+    padding: 1px 8px;
+    font-size: 12px;
+  }
+
+  .play-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .play-table th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gray);
+    padding: 6px 10px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .play-table td {
+    padding: 7px 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  .play-table tr:hover td { background: rgba(255,255,255,0.04); }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .tag-run { background: rgba(45,155,90,0.2); color: #4ec88a; }
+  .tag-pass { background: rgba(100,149,237,0.2); color: #7ab0f5; }
+  .tag-td { background: rgba(240,180,41,0.25); color: var(--gold); }
+  .tag-int { background: rgba(45,155,90,0.25); color: #4ec88a; }
+  .tag-sack { background: rgba(45,155,90,0.25); color: #4ec88a; }
+  .tag-neg { color: var(--red); }
+  .tag-pos { color: var(--green); }
+
+  /* RIGHT PANEL — Defensive Call Sheet */
+  .right-panel {
+    background: var(--navy2);
+    border-left: 1px solid rgba(255,255,255,0.08);
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  .def-section {
+    margin-bottom: 20px;
+  }
+
+  .def-btn {
+    width: 100%;
+    text-align: left;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--light);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .def-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(240,180,41,0.3); }
+  .def-btn.selected { background: rgba(240,180,41,0.15); border-color: var(--gold); color: var(--gold); }
+
+  .def-btn .sub { font-size: 11px; color: var(--gray); font-weight: 400; text-transform: none; letter-spacing: 0; font-family: 'Barlow', sans-serif; }
+
+  .call-summary {
+    background: linear-gradient(135deg, rgba(240,180,41,0.12), rgba(240,180,41,0.05));
+    border: 1px solid rgba(240,180,41,0.4);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .call-summary h3 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .call-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+
+  .call-key { color: var(--gray); }
+  .call-val { font-weight: 600; color: var(--white); font-family: 'Barlow Condensed', sans-serif; font-size: 15px; }
+
+  .insight-box {
+    background: rgba(230,57,70,0.08);
+    border: 1px solid rgba(230,57,70,0.25);
+    border-radius: 8px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .insight-box.warn { 
+    background: rgba(240,180,41,0.08);
+    border-color: rgba(240,180,41,0.25);
+  }
+
+  .insight-box.good {
+    background: rgba(45,155,90,0.08);
+    border-color: rgba(45,155,90,0.25);
+  }
+
+  .insight-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--red);
+    margin-bottom: 6px;
+  }
+
+  .insight-box.warn .insight-title { color: var(--gold); }
+  .insight-box.good .insight-title { color: var(--green); }
+
+  .insight-text {
+    font-size: 12px;
+    color: var(--light);
+    line-height: 1.5;
+  }
+
+  .no-plays {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--gray);
+    font-size: 14px;
+  }
+
+  .pct-bar-wrap { 
+    height: 6px; 
+    background: rgba(255,255,255,0.08); 
+    border-radius: 3px; 
+    margin-top: 4px; 
+    overflow: hidden;
+  }
+  .pct-bar { height: 100%; border-radius: 3px; transition: width 0.4s; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <h1>🏈 JHS Offensive Tendencies</h1>
+    <p>Defensive Coordinator Simulator — 2025 Film Study</p>
+  </div>
+  <div class="header-right">
+    <div class="stat-pill"><div class="num">52</div><div class="lbl">Total Plays</div></div>
+    <div class="stat-pill"><div class="num">63%</div><div class="lbl">Pass Rate</div></div>
+    <div class="stat-pill"><div class="num">62%</div><div class="lbl">Middle Hash</div></div>
+    <div class="stat-pill"><div class="num">2x2</div><div class="lbl">Base Formation</div></div>
+  </div>
+</header>
+
+<div class="main">
+  <!-- LEFT: Situation Controls -->
+  <div class="left-panel">
+    <div class="panel-title">📋 Game Situation</div>
+
+    <div class="control-group">
+      <span class="control-label">Down</span>
+      <div class="btn-group">
+        <button class="btn any active" data-group="down" data-val="any">Any</button>
+        <button class="btn" data-group="down" data-val="1">1st</button>
+        <button class="btn" data-group="down" data-val="2">2nd</button>
+        <button class="btn" data-group="down" data-val="3">3rd</button>
+        <button class="btn" data-group="down" data-val="4">4th</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">Distance</span>
+      <div class="btn-group">
+        <button class="btn any active" data-group="dist" data-val="any">Any</button>
+        <button class="btn" data-group="dist" data-val="short">Short (1-3)</button>
+        <button class="btn" data-group="dist" data-val="medium">Med (4-6)</button>
+        <button class="btn" data-group="dist" data-val="long">Long (7+)</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">Hash</span>
+      <div class="btn-group">
+        <button class="btn any active" data-group="hash" data-val="any">Any</button>
+        <button class="btn" data-group="hash" data-val="L">Left</button>
+        <button class="btn" data-group="hash" data-val="M">Middle</button>
+        <button class="btn" data-group="hash" data-val="R">Right</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">Field Zone</span>
+      <div class="btn-group">
+        <button class="btn any active" data-group="zone" data-val="any">Any</button>
+        <button class="btn" data-group="zone" data-val="backed">Own 40+</button>
+        <button class="btn" data-group="zone" data-val="own">Own 20-39</button>
+        <button class="btn" data-group="zone" data-val="mid">Midfield</button>
+        <button class="btn" data-group="zone" data-val="opp">Opp 20-39</button>
+        <button class="btn" data-group="zone" data-val="rz">Red Zone</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">Formation</span>
+      <select id="formFilter">
+        <option value="any">Any Formation</option>
+        <option value="2x2">2x2</option>
+        <option value="Empty Right">Empty Right</option>
+        <option value="2x2 Wing">2x2 Wing</option>
+        <option value="PRO">PRO</option>
+        <option value="DBL TIGHT WING">DBL TIGHT WING</option>
+        <option value="TWINS">TWINS</option>
+        <option value="DBL TIGHT">DBL TIGHT</option>
+        <option value="TRIPS">TRIPS</option>
+        <option value="TRIPS WING">TRIPS WING</option>
+        <option value="2x2 Y WING">2x2 Y WING</option>
+        <option value="SPREAD DBL WING">SPREAD DBL WING</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <span class="control-label">Quarter</span>
+      <div class="btn-group">
+        <button class="btn any active" data-group="qtr" data-val="any">Any</button>
+        <button class="btn" data-group="qtr" data-val="1">Q1</button>
+        <button class="btn" data-group="qtr" data-val="2">Q2</button>
+        <button class="btn" data-group="qtr" data-val="3">Q3</button>
+        <button class="btn" data-group="qtr" data-val="4">Q4</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="randomize-btn" id="randomizeBtn">
+      <span class="dice">🎲</span> RANDOMIZE OFFENSE
+    </button>
+
+    <div class="offense-display" id="offenseDisplay" style="display:none;">
+      <div class="offense-display-title">🏈 Offense is Lined Up</div>
+      <div class="offense-grid" id="offenseGrid"></div>
+    </div>
+
+    <button class="btn" id="resetBtn" style="width:100%; background: rgba(230,57,70,0.15); border-color: rgba(230,57,70,0.3); color: #e63946;">↺ Reset All Filters</button>
+  </div>
+
+  <!-- CENTER: Field + Plays -->
+  <div class="center-panel">
+    <div class="tendency-bar" id="tendencyBar">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="field-wrapper">
+      <div class="field">
+        <canvas id="fieldCanvas" width="700" height="260"></canvas>
+      </div>
+    </div>
+
+    <div class="plays-section">
+      <div class="plays-title">
+        Matching Plays
+        <span class="count-badge" id="playCount">0</span>
+      </div>
+      <div id="playTableWrap"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Defensive Call Sheet -->
+  <div class="right-panel">
+    <div class="panel-title">🛡 Defensive Call Sheet</div>
+
+    <div class="record-strip" id="recordStrip">
+      <div class="record-item wins"><div class="rn" id="recWins">0</div><div class="rl">Stops</div></div>
+      <div class="record-item losses"><div class="rn" id="recLosses">0</div><div class="rl">Scores</div></div>
+      <div class="record-item neutral-r"><div class="rn" id="recPlays">0</div><div class="rl">Plays Run</div></div>
+    </div>
+
+    <button class="submit-btn" id="submitCallBtn" disabled>
+      📣 SUBMIT DEFENSIVE CALL
+    </button>
+
+    <div class="call-summary" id="callSummary">
+      <h3>Current Call</h3>
+      <div class="call-row"><span class="call-key">Front</span><span class="call-val" id="callFront">—</span></div>
+      <div class="call-row"><span class="call-key">Coverage</span><span class="call-val" id="callCov">—</span></div>
+      <div class="call-row"><span class="call-key">Blitz</span><span class="call-val" id="callBlitz">—</span></div>
+      <div class="call-row"><span class="call-key">Contain</span><span class="call-val" id="callContain">—</span></div>
+    </div>
+
+    <div class="def-section">
+      <div class="panel-title">Defensive Front</div>
+      <button class="def-btn selected" data-group="front" data-val="4-3">4-3 <span class="sub">Base even front</span></button>
+      <button class="def-btn" data-group="front" data-val="3-4">3-4 <span class="sub">Two-gap OLBs</span></button>
+      <button class="def-btn" data-group="front" data-val="4-2-5">4-2-5 Nickel <span class="sub">Extra DB vs spread</span></button>
+      <button class="def-btn" data-group="front" data-val="3-3-5">3-3-5 <span class="sub">Pressure package</span></button>
+      <button class="def-btn" data-group="front" data-val="Goal Line">Goal Line <span class="sub">Short yardage/RZ</span></button>
+    </div>
+
+    <div class="def-section">
+      <div class="panel-title">Coverage</div>
+      <button class="def-btn selected" data-group="cov" data-val="Cover 2">Cover 2 <span class="sub">2-deep, 5-under</span></button>
+      <button class="def-btn" data-group="cov" data-val="Cover 3">Cover 3 <span class="sub">3-deep, 4-under</span></button>
+      <button class="def-btn" data-group="cov" data-val="Cover 4">Cover 4 / Quarters <span class="sub">4-deep, pattern match</span></button>
+      <button class="def-btn" data-group="cov" data-val="Man Free">Man Free / Cover 1 <span class="sub">Man + FS over top</span></button>
+      <button class="def-btn" data-group="cov" data-val="Cover 0">Cover 0 <span class="sub">All-out man, no safety</span></button>
+      <button class="def-btn" data-group="cov" data-val="Cover 2 Man">Cover 2 Man <span class="sub">Man under, 2-deep</span></button>
+    </div>
+
+    <div class="def-section">
+      <div class="panel-title">Blitz / Pressure</div>
+      <button class="def-btn selected" data-group="blitz" data-val="None">No Blitz <span class="sub">4-man rush</span></button>
+      <button class="def-btn" data-group="blitz" data-val="ILB Blitz">ILB Blitz <span class="sub">A-gap pressure</span></button>
+      <button class="def-btn" data-group="blitz" data-val="OLB Blitz">OLB Blitz <span class="sub">Edge pressure</span></button>
+      <button class="def-btn" data-group="blitz" data-val="DB Blitz">DB/Corner Blitz <span class="sub">Secondary pressure</span></button>
+      <button class="def-btn" data-group="blitz" data-val="Zero Blitz">Zero Blitz <span class="sub">All out — empty coverage</span></button>
+    </div>
+
+    <div class="def-section">
+      <div class="panel-title">Contain / Assignment</div>
+      <button class="def-btn selected" data-group="contain" data-val="Normal">Normal Contain <span class="sub">Set edges, QB in pocket</span></button>
+      <button class="def-btn" data-group="contain" data-val="Spy">QB Spy <span class="sub">LB spy mobile QB</span></button>
+      <button class="def-btn" data-group="contain" data-val="Pinch">Pinch / Stunt <span class="sub">DL pinch vs run</span></button>
+      <button class="def-btn" data-group="contain" data-val="Crash">DE Crash <span class="sub">Both ends crash inside</span></button>
+    </div>
+
+    <div class="play-log-section" id="playLogSection" style="display:none;">
+      <div class="play-log-title">
+        Play Log
+        <span style="color:var(--gray);font-weight:400;font-size:11px;" id="playLogCount">0 plays</span>
+      </div>
+      <div class="play-log" id="playLog"></div>
+    </div>
+
+    <div id="insightsArea"></div>
+  </div>
+</div>
+
+<!-- RESULT MODAL -->
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-modal">
+    <div class="result-modal-header">
+      <h2 id="resultTitle">Play Result</h2>
+      <button class="close-btn" id="closeModal">✕</button>
+    </div>
+    <div class="result-modal-body" id="resultBody"></div>
+  </div>
+</div>
+
+<script>
+const PLAYS = [{"PLAY #":3,"ODK":"D","DN":1,"DIST":10,"HASH":"L","YARD LN":-35,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":0,"OFF FORM":null,"OFF STR":"R","PLAY DIR":"L","QTR":1},{"PLAY #":4,"ODK":"D","DN":2,"DIST":10,"HASH":"L","YARD LN":-35,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"2x2 Y WING","OFF STR":"R","PLAY DIR":"R","QTR":1},{"PLAY #":5,"ODK":"D","DN":3,"DIST":10,"HASH":"L","YARD LN":-35,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":null,"OFF STR":"R","PLAY DIR":"L","QTR":1},{"PLAY #":11,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":-46,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":-1,"OFF FORM":"PRO","OFF STR":"L","PLAY DIR":"R","QTR":1},{"PLAY #":12,"ODK":"D","DN":2,"DIST":11,"HASH":"R","YARD LN":-45,"PLAY TYPE":"Pass","RESULT":"Complete","GN/LS":8,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"L","QTR":1},{"PLAY #":13,"ODK":"D","DN":3,"DIST":3,"HASH":"M","YARD LN":47,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":5,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"L","QTR":1},{"PLAY #":14,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":42,"PLAY TYPE":"Pass","RESULT":"Complete","GN/LS":33,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"L","QTR":1},{"PLAY #":15,"ODK":"D","DN":1,"DIST":9,"HASH":"M","YARD LN":9,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":5,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"L","QTR":1},{"PLAY #":16,"ODK":"D","DN":2,"DIST":4,"HASH":"M","YARD LN":4,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":2,"OFF FORM":"DBL TIGHT WING","OFF STR":"L","PLAY DIR":"R","QTR":1},{"PLAY #":17,"ODK":"D","DN":3,"DIST":2,"HASH":"M","YARD LN":2,"PLAY TYPE":"Run","RESULT":"Rush, TD","GN/LS":2,"OFF FORM":"DBL TIGHT WING","OFF STR":"L","PLAY DIR":"L","QTR":1},{"PLAY #":31,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":-20,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":15,"OFF FORM":"TWINS","OFF STR":"L","PLAY DIR":"L","QTR":1},{"PLAY #":32,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":-35,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"2x2 Wing","OFF STR":"L","PLAY DIR":"R","QTR":2},{"PLAY #":33,"ODK":"D","DN":2,"DIST":10,"HASH":"M","YARD LN":-35,"PLAY TYPE":"Pass","RESULT":"Complete","GN/LS":10,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"R","QTR":2},{"PLAY #":35,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":-45,"PLAY TYPE":"Pass","RESULT":"Complete","GN/LS":12,"OFF FORM":"TWINS","OFF STR":"L","PLAY DIR":"R","QTR":2},{"PLAY #":36,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":43,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"TRIPS WING","OFF STR":"L","PLAY DIR":"R","QTR":2},{"PLAY #":37,"ODK":"D","DN":2,"DIST":10,"HASH":"M","YARD LN":43,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":18,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"R","QTR":2},{"PLAY #":38,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":25,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"L","QTR":2},{"PLAY #":39,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":25,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":5,"OFF FORM":"PRO","OFF STR":"R","PLAY DIR":"R","QTR":2},{"PLAY #":40,"ODK":"D","DN":2,"DIST":5,"HASH":"M","YARD LN":20,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":0,"OFF FORM":"PRO","OFF STR":"R","PLAY DIR":"R","QTR":2},{"PLAY #":42,"ODK":"D","DN":3,"DIST":5,"HASH":"M","YARD LN":20,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":15,"OFF FORM":"TWINS","OFF STR":"L","PLAY DIR":"R","QTR":2},{"PLAY #":43,"ODK":"D","DN":1,"DIST":5,"HASH":"M","YARD LN":5,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":2,"OFF FORM":"DBL TIGHT WING","OFF STR":"R","PLAY DIR":"R","QTR":2},{"PLAY #":45,"ODK":"D","DN":2,"DIST":3,"HASH":"M","YARD LN":3,"PLAY TYPE":"Pass","RESULT":"Complete, TD","GN/LS":3,"OFF FORM":"DBL TIGHT","OFF STR":"BAL","PLAY DIR":"R","QTR":2},{"PLAY #":56,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":-37,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":0,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"L","QTR":2},{"PLAY #":58,"ODK":"D","DN":1,"DIST":10,"HASH":"L","YARD LN":50,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"L","QTR":2},{"PLAY #":59,"ODK":"D","DN":2,"DIST":10,"HASH":"L","YARD LN":50,"PLAY TYPE":"Pass","RESULT":"Complete","GN/LS":40,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"R","QTR":2},{"PLAY #":60,"ODK":"D","DN":1,"DIST":10,"HASH":"R","YARD LN":10,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"R","QTR":2},{"PLAY #":61,"ODK":"D","DN":2,"DIST":10,"HASH":"R","YARD LN":10,"PLAY TYPE":"Pass","RESULT":"Interception","GN/LS":0,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"R","QTR":2},{"PLAY #":71,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":45,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":2,"OFF FORM":"2x2 Wing","OFF STR":"L","PLAY DIR":"L","QTR":3},{"PLAY #":72,"ODK":"D","DN":2,"DIST":8,"HASH":"L","YARD LN":43,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"2x2 Wing","OFF STR":"L","PLAY DIR":"R","QTR":3},{"PLAY #":73,"ODK":"D","DN":3,"DIST":8,"HASH":"L","YARD LN":43,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":2,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"R","QTR":3},{"PLAY #":75,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":46,"PLAY TYPE":"Pass","RESULT":"Interception","GN/LS":null,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"L","QTR":3},{"PLAY #":89,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":-30,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":0,"OFF FORM":"2x2 Wing","OFF STR":"L","PLAY DIR":"R","QTR":3},{"PLAY #":91,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":-45,"PLAY TYPE":"Pass","RESULT":"Complete","GN/LS":0,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"L","QTR":3},{"PLAY #":93,"ODK":"D","DN":1,"DIST":10,"HASH":"L","YARD LN":18,"PLAY TYPE":"Run","RESULT":"Rush","GN/LS":0,"OFF FORM":"TRIPS","OFF STR":"R","PLAY DIR":"L","QTR":4},{"PLAY #":111,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":-20,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"Empty Right","OFF STR":"R","PLAY DIR":"R","QTR":4},{"PLAY #":112,"ODK":"D","DN":2,"DIST":10,"HASH":"L","YARD LN":-20,"PLAY TYPE":"Pass","RESULT":"Complete","GN/LS":35,"OFF FORM":"Empty Right","OFF STR":"L","PLAY DIR":"L","QTR":4},{"PLAY #":113,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":45,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"Empty Right","OFF STR":"R","PLAY DIR":"R","QTR":4},{"PLAY #":114,"ODK":"D","DN":2,"DIST":10,"HASH":"M","YARD LN":45,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"Empty Right","OFF STR":"R","PLAY DIR":"R","QTR":4},{"PLAY #":115,"ODK":"D","DN":3,"DIST":10,"HASH":"M","YARD LN":45,"PLAY TYPE":"Pass","RESULT":"Complete","GN/LS":15,"OFF FORM":"Empty Right","OFF STR":"R","PLAY DIR":"R","QTR":4},{"PLAY #":116,"ODK":"D","DN":1,"DIST":10,"HASH":"M","YARD LN":30,"PLAY TYPE":"Pass","RESULT":"Complete, TD","GN/LS":30,"OFF FORM":"Empty Right","OFF STR":"R","PLAY DIR":"L","QTR":4},{"PLAY #":120,"ODK":"D","DN":1,"DIST":10,"HASH":"L","YARD LN":-44,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"Empty Right","OFF STR":"L","PLAY DIR":"L","QTR":4},{"PLAY #":121,"ODK":"D","DN":2,"DIST":10,"HASH":"L","YARD LN":-44,"PLAY TYPE":"Pass","RESULT":"Sack","GN/LS":-8,"OFF FORM":"Empty Right","OFF STR":"R","PLAY DIR":"R","QTR":4},{"PLAY #":122,"ODK":"D","DN":3,"DIST":18,"HASH":"M","YARD LN":-36,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"2x2","OFF STR":"BAL","PLAY DIR":"L","QTR":4},{"PLAY #":123,"ODK":"D","DN":4,"DIST":18,"HASH":"M","YARD LN":-36,"PLAY TYPE":"Pass","RESULT":"Incomplete","GN/LS":0,"OFF FORM":"Empty Right","OFF STR":"L","PLAY DIR":"L","QTR":4}];
+
+// ─── STATE ───────────────────────────────────────────────────────────
+const filters = { down:'any', dist:'any', hash:'any', zone:'any', form:'any', qtr:'any' };
+const defCall  = { front:'4-3', cov:'Cover 2', blitz:'None', contain:'Normal' };
+let currentOffensePlay = null; // the randomized play
+const gameLog = [];
+let wins = 0, losses = 0, totalPlays = 0;
+
+// ─── HELPERS ─────────────────────────────────────────────────────────
+function getZone(yl) {
+  if (yl === null || yl === undefined) return null;
+  if (yl < -40) return 'backed';
+  if (yl < -20) return 'own';
+  if (yl < 20)  return 'mid';
+  if (yl < 40)  return 'opp';
+  return 'rz';
+}
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function filterPlays() {
+  return PLAYS.filter(p => {
+    if (!p['PLAY TYPE']) return false;
+    if (filters.down !== 'any' && p.DN != parseInt(filters.down)) return false;
+    if (filters.dist !== 'any') {
+      const d = p.DIST;
+      if (filters.dist === 'short'  && !(d >= 1 && d <= 3)) return false;
+      if (filters.dist === 'medium' && !(d >= 4 && d <= 6)) return false;
+      if (filters.dist === 'long'   && !(d >= 7)) return false;
+    }
+    if (filters.hash !== 'any' && p.HASH !== filters.hash) return false;
+    if (filters.zone !== 'any' && getZone(p['YARD LN']) !== filters.zone) return false;
+    if (filters.form !== 'any' && p['OFF FORM'] !== filters.form) return false;
+    if (filters.qtr  !== 'any' && p.QTR != parseInt(filters.qtr)) return false;
+    return true;
+  });
+}
+
+// ─── RANDOMIZE ───────────────────────────────────────────────────────
+function randomizeOffense() {
+  // Weight by actual JHS tendencies from film
+  const formations = [
+    {v:'2x2',weight:19},
+    {v:'Empty Right',weight:9},
+    {v:'2x2 Wing',weight:4},
+    {v:'PRO',weight:3},
+    {v:'DBL TIGHT WING',weight:3},
+    {v:'TWINS',weight:3},
+    {v:'2x2 Y WING',weight:1},
+    {v:'SPREAD DBL WING',weight:1},
+    {v:'TRIPS WING',weight:1},
+    {v:'DBL TIGHT',weight:1},
+    {v:'TRIPS',weight:1}
+  ];
+  const hashes = [{v:'M',w:32},{v:'L',w:11},{v:'R',w:3}];
+  const downs = [{v:1,w:23},{v:2,w:14},{v:3,w:8},{v:4,w:2}];
+  const strengths = [{v:'BAL',w:21},{v:'L',w:14},{v:'R',w:13}];
+  const dirs = [{v:'R',w:24},{v:'L',w:20}];
+
+  function weightedPick(arr) {
+    const total = arr.reduce((s,i) => s+(i.weight||i.w||1), 0);
+    let r = Math.random() * total;
+    for (const item of arr) { r -= (item.weight||item.w||1); if (r <= 0) return item.v; }
+    return arr[arr.length-1].v;
+  }
+
+  const form = weightedPick(formations);
+  const hash = weightedPick(hashes);
+  const dn   = weightedPick(downs);
+  const str  = weightedPick(strengths);
+  const dir  = weightedPick(dirs);
+
+  // Determine dist based on down
+  let dist;
+  if (dn === 1) dist = pick([10,10,10,9,5]);
+  else if (dn === 2) dist = pick([10,10,8,5,4,3,2]);
+  else if (dn === 3) dist = pick([10,10,8,5,3,2,1]);
+  else dist = pick([18,10,6,2]);
+
+  // Yard line — weighted by film zones
+  const zones = ['backed','own','mid','opp','rz'];
+  const zoneW  = [6, 9, 9, 6, 14];
+  let zoneIdx = 0;
+  let zr = Math.random() * zoneW.reduce((a,b)=>a+b,0);
+  for (let i=0;i<zoneW.length;i++){zr-=zoneW[i];if(zr<=0){zoneIdx=i;break;}}
+  const zone = zones[zoneIdx];
+
+  let yl;
+  if (zone === 'backed') yl = -pick([41,42,43,44,45,46]);
+  else if (zone === 'own') yl = -pick([20,25,30,35,37]);
+  else if (zone === 'mid') yl = pick([-19,-15,-10,-5,0,5,10,15,19]);
+  else if (zone === 'opp') yl = pick([20,25,30,35,38]);
+  else yl = pick([1,2,3,4,5,8,10,12,15,18]);
+
+  // Determine likely play type based on JHS tendencies
+  let passProb = 0.63; // base
+  if (form === 'Empty Right') passProb = 1.0;
+  if (['PRO','DBL TIGHT WING','DBL TIGHT'].includes(form)) passProb = 0.25;
+  if (['TWINS'].includes(form)) passProb = 0.33;
+  if (hash === 'R') passProb = Math.min(passProb + 0.2, 1.0);
+  if (dn === 3 && dist <= 3) passProb = Math.max(passProb - 0.3, 0.1);
+  if (dn === 1) passProb = Math.max(passProb - 0.1, 0.3);
+
+  const playType = Math.random() < passProb ? 'Pass' : 'Run';
+
+  currentOffensePlay = { 'OFF FORM': form, HASH: hash, DN: dn, DIST: dist, 'OFF STR': str, 'PLAY DIR': dir, 'YARD LN': yl, 'PLAY TYPE': playType, _zone: zone, _passProb: passProb };
+
+  // Update UI
+  const grid = document.getElementById('offenseGrid');
+  const fieldDisplay = yl < 0 ? `Own ${Math.abs(yl)}` : `Opp ${yl}`;
+  grid.innerHTML = `
+    <div class="offense-item"><div class="ok">Formation</div><div class="ov">${form}</div></div>
+    <div class="offense-item"><div class="ok">Hash</div><div class="ov">${hash} Hash</div></div>
+    <div class="offense-item"><div class="ok">Down & Dist</div><div class="ov">${dn} & ${dist}</div></div>
+    <div class="offense-item"><div class="ok">Field Position</div><div class="ov">${fieldDisplay}</div></div>
+    <div class="offense-item"><div class="ok">Strength</div><div class="ov">${str}</div></div>
+    <div class="offense-item"><div class="ok">Direction</div><div class="ov">${dir}</div></div>
+  `;
+  document.getElementById('offenseDisplay').style.display = 'block';
+  document.getElementById('submitCallBtn').disabled = false;
+
+  // Also update filters to match so tendency bar reflects the situation
+  updateFilterBarFromPlay(currentOffensePlay);
+  render();
+}
+
+function updateFilterBarFromPlay(play) {
+  // Update tendency bar with this specific situation
+  const matching = PLAYS.filter(p => {
+    if (!p['PLAY TYPE']) return false;
+    if (p.DN !== play.DN) return false;
+    if (p['OFF FORM'] !== play['OFF FORM']) return false;
+    return true;
+  });
+  renderTendencies(matching.length > 0 ? matching : PLAYS);
+}
+
+// ─── SIMULATION ENGINE ────────────────────────────────────────────────
+function simulatePlay(offPlay, defCall) {
+  const form = offPlay['OFF FORM'];
+  const hash = offPlay.HASH;
+  const dn   = offPlay.DN;
+  const dist = offPlay.DIST;
+  const dir  = offPlay['PLAY DIR'];
+  const yl   = offPlay['YARD LN'];
+  const zone = offPlay._zone;
+  const passProb = offPlay._passProb;
+  const isPass = offPlay['PLAY TYPE'] === 'Pass';
+
+  // ── Base defensive success score (0=offense wins, 1=defense wins)
+  // We'll compute a "defScore" from 0-100 where higher = better D outcome
+  let defScore = 50;
+
+  // ── FORMATION READS ──────────────────────────────────────
+  // Empty Right = pass, if defense in run front → bad
+  if (form === 'Empty Right') {
+    if (['4-3','3-4','Goal Line'].includes(defCall.front)) defScore -= 20;
+    if (['4-2-5','3-3-5'].includes(defCall.front)) defScore += 15;
+    if (['Cover 4','Man Free','Cover 2 Man'].includes(defCall.cov)) defScore += 10;
+    if (defCall.cov === 'Cover 2') defScore -= 8; // soft middle vs empty
+  }
+
+  // DBL TIGHT formations = run, if D in nickel/dime → bad
+  if (['DBL TIGHT WING','DBL TIGHT','PRO'].includes(form) && !isPass) {
+    if (['4-2-5','3-3-5'].includes(defCall.front)) defScore -= 15;
+    if (['4-3','Goal Line'].includes(defCall.front)) defScore += 12;
+    if (defCall.contain === 'Pinch') defScore += 10;
+    if (defCall.contain === 'Crash') defScore -= 8; // opens inside lanes
+  }
+
+  // TWINS/TRIPS = run, if D in base → decent
+  if (['TWINS','TRIPS','TRIPS WING'].includes(form) && !isPass) {
+    if (defCall.front === '4-3') defScore += 5;
+    if (defCall.contain === 'Pinch') defScore += 8;
+  }
+
+  // ── HASH READS ───────────────────────────────────────────
+  if (hash === 'R' && isPass) {
+    // Right hash = pass — if D doesn't have extra help on boundary
+    if (defCall.cov === 'Cover 3') defScore += 8; // boundary CB help
+    if (defCall.cov === 'Cover 2') defScore -= 5;
+  }
+  if (hash === 'M' && !isPass) {
+    // Middle hash run — give slight edge to balanced fronts
+    if (defCall.front === '4-3') defScore += 5;
+    if (defCall.contain === 'Pinch') defScore += 6;
+  }
+
+  // ── COVERAGE MATCHUPS ─────────────────────────────────────
+  if (isPass) {
+    if (defCall.cov === 'Cover 0') { defScore += 25; defScore -= 30 * Math.random(); } // high risk/reward
+    if (defCall.cov === 'Cover 4') defScore += 12; // great vs spread, takes away deep shots
+    if (defCall.cov === 'Man Free') defScore += 8;
+    if (defCall.cov === 'Cover 2 Man') defScore += 6;
+    if (defCall.cov === 'Cover 3') defScore += 4;
+    if (defCall.cov === 'Cover 2') defScore -= 2;
+  } else {
+    // Run
+    if (defCall.cov === 'Cover 0') defScore += 5; // 8 in box
+    if (defCall.cov === 'Cover 2') defScore += 8; // safeties come down
+    if (defCall.cov === 'Cover 4') defScore -= 5; // corners play off, no run support
+  }
+
+  // ── BLITZ READS ──────────────────────────────────────────
+  if (defCall.blitz !== 'None' && isPass) {
+    if (defCall.blitz === 'ILB Blitz') {
+      // Great vs PRO/2x2, risky vs Empty Right (hot routes)
+      if (form === 'Empty Right') defScore -= 15;
+      else defScore += 12;
+    }
+    if (defCall.blitz === 'OLB Blitz') {
+      defScore += 8; // edge pressure on most formations
+      if (form === 'Empty Right') defScore -= 5; // quick release
+    }
+    if (defCall.blitz === 'DB Blitz') {
+      defScore += 15;
+      if (['Cover 0'].includes(defCall.cov)) defScore += 5;
+      if (defCall.cov !== 'Cover 0') defScore -= 10; // left with man coverage + no safety
+    }
+    if (defCall.blitz === 'Zero Blitz') {
+      defScore += 20;
+      defScore -= 25 * Math.random(); // high variance
+    }
+  }
+  if (defCall.blitz !== 'None' && !isPass) {
+    // Blitzing on a run could leave gaps
+    defScore -= 8;
+    if (defCall.contain === 'Pinch') defScore += 5; // mitigates
+  }
+
+  // ── DOWN & DISTANCE CONTEXT ───────────────────────────────
+  if (dn === 3 && dist >= 8 && isPass) {
+    // 3rd & long pass — coverage premium
+    if (['Cover 4','Man Free'].includes(defCall.cov)) defScore += 8;
+  }
+  if (dn >= 3 && dist <= 2 && !isPass) {
+    // Short yardage run — load box
+    if (defCall.front === 'Goal Line') defScore += 15;
+    if (['4-2-5','3-3-5'].includes(defCall.front)) defScore -= 12;
+  }
+
+  // ── RED ZONE ─────────────────────────────────────────────
+  if (zone === 'rz') {
+    if (defCall.front === 'Goal Line') defScore += 10;
+    if (['Cover 4','Man Free'].includes(defCall.cov)) defScore += 8;
+    defScore -= 5; // offense has scoring advantage in RZ
+  }
+
+  // ── CONTAIN ASSIGNMENT ────────────────────────────────────
+  if (!isPass) {
+    if (defCall.contain === 'Spy') defScore -= 5; // QB spy hurts vs pure run
+    if (defCall.contain === 'Pinch') defScore += 7;
+    if (defCall.contain === 'Crash') defScore -= 3; // opens cutback lanes
+  }
+
+  // ── DIRECTION READS ────────────────────────────────────────
+  // If D has contain to the offense's direction, slight edge
+  if (dir === 'R' && defCall.contain !== 'Spy') defScore += 2;
+
+  // ── ADD VARIANCE ──────────────────────────────────────────
+  defScore += (Math.random() * 30) - 15; // ±15 randomness
+  defScore = Math.max(5, Math.min(95, defScore));
+
+  // ── DETERMINE OUTCOME ─────────────────────────────────────
+  return generateOutcome(defScore, isPass, form, dn, dist, yl, zone, defCall, dir);
+}
+
+function generateOutcome(defScore, isPass, form, dn, dist, yl, zone, defCall, dir) {
+  // defScore 0-100: higher = better for defense
+  const offScore = 100 - defScore;
+
+  let outcome = {};
+
+  if (isPass) {
+    if (defScore >= 75) {
+      // Strong D win
+      const results = [
+        { type:'win', label:'SACK!', icon:'💪', yards:-pick([4,5,6,7,8,9]), tag:'Sack', narrative: `Pressure gets home — ${getSackNarrative(defCall)}.` },
+        { type:'win', label:'INTERCEPTION!', icon:'🙌', yards:0, tag:'INT', narrative: `${getINTNarrative(defCall, form)} — ball game, take it back!` },
+        { type:'win', label:'PASS DEFENDED', icon:'✋', yards:0, tag:'PBU', narrative: `${getPBUNarrative(defCall, form)}.` },
+      ];
+      outcome = pick(results);
+    } else if (defScore >= 55) {
+      // Slight D edge
+      const results = [
+        { type:'neutral', label:'SHORT GAIN', icon:'📌', yards:pick([1,2,3,4,5]), tag:'Complete', narrative:`Completion for minimal yards — containment holds, good coverage shell.` },
+        { type:'neutral', label:'INCOMPLETE', icon:'📌', yards:0, tag:'Incomplete', narrative:`Pressure forces an errant throw — ${defCall.blitz !== 'None' ? 'the blitz rattled the QB' : 'coverage was tight'}.` },
+      ];
+      outcome = pick(results);
+    } else if (defScore >= 35) {
+      // Slight O edge
+      const modYards = pick([6,7,8,10,11,12]);
+      outcome = { type:'loss', label:'COMPLETION', icon:'⚠️', yards:modYards, tag:'Complete', narrative:`Pass gets through for ${modYards} yards. ${getMatchupLossNarrative(defCall, form, 'Pass')}.` };
+    } else {
+      // Big O win
+      const bigYards = pick([15,18,20,25,30,33,35,40]);
+      const isTD = zone === 'rz' || (yl > 20 && bigYards >= 25);
+      if (isTD) {
+        outcome = { type:'loss', label:'TOUCHDOWN!', icon:'🔴', yards:bigYards, tag:'TD', narrative:`${form} exploits the coverage — ${getTDNarrative(defCall, form)}.` };
+      } else {
+        outcome = { type:'loss', label:'BIG GAIN!', icon:'🔴', yards:bigYards, tag:'Complete', narrative:`${bigYards}-yard completion — ${getMatchupLossNarrative(defCall, form, 'Pass')}.` };
+      }
+    }
+  } else {
+    // Run play
+    if (defScore >= 72) {
+      const results = [
+        { type:'win', label:'STUFF!', icon:'💪', yards:pick([-2,-1,0,0,1]), tag:'TFL/Stop', narrative:`${getRunStopNarrative(defCall, form)}.` },
+        { type:'win', label:'TACKLE FOR LOSS', icon:'💪', yards:-pick([1,2,3]), tag:'TFL', narrative:`Penetration through the gap — ${defCall.contain === 'Pinch' ? 'the pinch stunt worked perfectly' : defCall.front + ' reads the key and shoots the gap'}.` },
+      ];
+      outcome = pick(results);
+    } else if (defScore >= 48) {
+      outcome = { type:'neutral', label:'SHORT GAIN', icon:'📌', yards:pick([2,3,4,5]), tag:'Rush', narrative:`Controlled gain — ${defCall.front} holds the point, tackle at ${pick([2,3,4,5])} yards.` };
+    } else {
+      const bigRun = pick([8,10,12,15,18,20]);
+      const isTD = zone === 'rz' || (yl > 15 && bigRun >= 18);
+      if (isTD) {
+        outcome = { type:'loss', label:'TOUCHDOWN RUN!', icon:'🔴', yards:bigRun, tag:'Rush TD', narrative:`${form} power run breaks through — ${getRunLossNarrative(defCall)}.` };
+      } else {
+        outcome = { type:'loss', label:'BROKEN RUN!', icon:'🔴', yards:bigRun, tag:'Rush', narrative:`${bigRun}-yard gain — ${getRunLossNarrative(defCall)}.` };
+      }
+    }
+  }
+
+  outcome.defScore = defScore;
+  outcome.offScore = offScore;
+  outcome.playType = isPass ? 'Pass' : 'Run';
+  return outcome;
+}
+
+// ─── NARRATIVE GENERATORS ─────────────────────────────────────────────
+function getSackNarrative(dc) {
+  const map = {
+    'ILB Blitz': 'linebacker blitz up the middle catches the QB before he can step up',
+    'OLB Blitz': 'edge rusher wins the corner and brings him down',
+    'DB Blitz': 'corner blitz off the edge — unblocked, QB never sees it coming',
+    'Zero Blitz': 'all-out zero blitz overwhelms the protection',
+    'None': 'four-man rush collapses the pocket, nowhere to go'
+  };
+  return map[dc.blitz] || 'pressure collapses the pocket';
+}
+function getINTNarrative(dc, form) {
+  if (form === 'Empty Right') return 'QB forced to throw hot into the Cover 4 pattern — corner sits on the route';
+  if (dc.cov === 'Cover 4') return 'Quarters coverage — safety reads the route perfectly and undercuts it';
+  if (dc.cov === 'Man Free') return 'Man coverage with free safety over top — ball tips off the receiver into the safety\'s hands';
+  return 'defense reads the QB\'s eyes — jumps the route for the pick';
+}
+function getPBUNarrative(dc, form) {
+  if (dc.cov === 'Cover 4') return `Quarters coverage smothers the ${form} route tree — corner makes a play on the ball`;
+  if (dc.blitz !== 'None') return 'pressure forces a hurried throw — CB tracks the ball in the air and bats it down';
+  return `Tight coverage — receiver can\'t separate, ball broken up at the catch point`;
+}
+function getMatchupLossNarrative(dc, form, type) {
+  if (form === 'Empty Right' && dc.front !== '4-2-5') return '4-man front vs empty — not enough coverage athletes on the field';
+  if (dc.cov === 'Cover 2') return 'Cover 2 soft zone — ball thrown into the window between safeties';
+  if (dc.blitz !== 'None') return 'blitz opens a hot route window — QB finds it immediately';
+  return 'receiver wins his route, gains after contact';
+}
+function getTDNarrative(dc, form) {
+  if (form === 'Empty Right') return 'Empty Right spreads the field, stress on every level — nobody can account for all threats';
+  if (dc.cov === 'Cover 2') return 'corner sits on flat, post route hits behind the safety for the score';
+  return 'QB puts it in the back corner of the end zone, nobody home';
+}
+function getRunStopNarrative(dc, form) {
+  if (dc.front === 'Goal Line') return 'Goal Line front stacks the box 8-man — no crease to run through';
+  if (dc.contain === 'Pinch') return 'DL pinch stunt seals both A-gaps — nowhere to go';
+  if (dc.front === '4-3') return '4-3 reads the pull perfectly, tackles for no gain';
+  return 'defense wins at the point of attack, run stuffed at the line';
+}
+function getRunLossNarrative(dc) {
+  if (['4-2-5','3-3-5'].includes(dc.front)) return 'nickel personnel in the box — not enough beef to stop the power run';
+  if (dc.blitz !== 'None') return 'blitz leaves a gap in run fits — cutback lane wide open';
+  if (dc.contain === 'Crash') return 'both DEs crash inside — ball bounces outside, perimeter is clear';
+  return 'second-level defenders can\'t disengage from blocks, runner breaks into open field';
+}
+
+// ─── SUBMIT CALL ─────────────────────────────────────────────────────
+function submitCall() {
+  if (!currentOffensePlay) return;
+
+  const result = simulatePlay(currentOffensePlay, defCall);
+  totalPlays++;
+  document.getElementById('recPlays').textContent = totalPlays;
+
+  const isDefWin = result.type === 'win';
+  const isDefLoss = result.type === 'loss';
+  if (isDefWin) { wins++; document.getElementById('recWins').textContent = wins; }
+  if (isDefLoss) { losses++; document.getElementById('recLosses').textContent = losses; }
+
+  // Log the play
+  const play = currentOffensePlay;
+  const logEntry = {
+    num: totalPlays,
+    sit: `${play.DN} & ${play.DIST}`,
+    form: play['OFF FORM'] || '—',
+    type: result.playType,
+    label: result.label,
+    yards: result.yards,
+    type_outcome: result.type
+  };
+  gameLog.unshift(logEntry);
+  renderPlayLog();
+
+  // Show modal
+  showResultModal(result, play);
+
+  // Reset for next play
+  currentOffensePlay = null;
+  document.getElementById('submitCallBtn').disabled = true;
+  document.getElementById('offenseDisplay').style.display = 'none';
+}
+
+function showResultModal(result, play) {
+  const overlay = document.getElementById('resultOverlay');
+  const titleEl = document.getElementById('resultTitle');
+  const bodyEl  = document.getElementById('resultBody');
+
+  titleEl.textContent = result.label;
+  titleEl.style.color = result.type === 'win' ? 'var(--green)' : result.type === 'loss' ? 'var(--red)' : 'var(--gold)';
+
+  const fieldPos = play['YARD LN'] < 0 ? `Own ${Math.abs(play['YARD LN'])}` : `Opp ${play['YARD LN']}`;
+  const yardsDisplay = result.yards > 0 ? `+${result.yards} yards` : result.yards < 0 ? `${result.yards} yards (loss)` : 'No gain';
+  const nextDn = play.DN + 1;
+  const newDist = play.DIST - result.yards;
+
+  const defEffLabel = result.defScore >= 70 ? '🔥 Excellent' : result.defScore >= 50 ? '✅ Good' : result.defScore >= 35 ? '⚠️ Marginal' : '❌ Poor';
+  const offMatchLabel = result.offScore >= 70 ? '🔴 Strong' : result.offScore >= 50 ? '⚠️ Moderate' : '✅ Weak';
+
+  bodyEl.innerHTML = `
+    <div class="play-situation-strip">
+      <div class="sit-card"><div class="sk">Down</div><div class="sv">${play.DN} & ${play.DIST}</div></div>
+      <div class="sit-card"><div class="sk">Field</div><div class="sv">${fieldPos}</div></div>
+      <div class="sit-card"><div class="sk">Hash</div><div class="sv">${play.HASH}</div></div>
+      <div class="sit-card"><div class="sk">Formation</div><div class="sv" style="font-size:13px;">${play['OFF FORM'] || '—'}</div></div>
+      <div class="sit-card"><div class="sk">Play Type</div><div class="sv">${result.playType}</div></div>
+    </div>
+
+    <div class="vs-strip">
+      <div class="vs-side offense">
+        <h4>⚔️ Offense Called</h4>
+        <div class="vs-row"><span class="vs-k">Formation</span><span class="vs-v">${play['OFF FORM'] || '—'}</span></div>
+        <div class="vs-row"><span class="vs-k">Strength</span><span class="vs-v">${play['OFF STR']}</span></div>
+        <div class="vs-row"><span class="vs-k">Direction</span><span class="vs-v">${play['PLAY DIR']}</span></div>
+        <div class="vs-row"><span class="vs-k">Play Type</span><span class="vs-v">${result.playType}</span></div>
+      </div>
+      <div class="vs-divider">VS</div>
+      <div class="vs-side defense">
+        <h4>🛡️ Defense Called</h4>
+        <div class="vs-row"><span class="vs-k">Front</span><span class="vs-v">${defCall.front}</span></div>
+        <div class="vs-row"><span class="vs-k">Coverage</span><span class="vs-v">${defCall.cov}</span></div>
+        <div class="vs-row"><span class="vs-k">Blitz</span><span class="vs-v">${defCall.blitz}</span></div>
+        <div class="vs-row"><span class="vs-k">Contain</span><span class="vs-v">${defCall.contain}</span></div>
+      </div>
+    </div>
+
+    <div class="outcome-box ${result.type}">
+      <div class="outcome-icon">${result.icon}</div>
+      <div class="outcome-headline">${result.label}</div>
+      <div class="outcome-yardage">${yardsDisplay}${result.yards > 0 && play.DN < 4 ? ` → ${nextDn} & ${newDist > 0 ? newDist : 'FIRST DOWN!'}` : ''}</div>
+      <div class="outcome-narrative">${result.narrative}</div>
+
+      <div class="score-bar-wrap">
+        <div class="score-bar-label"><span>Defense Advantage</span><span>Offense Advantage</span></div>
+        <div class="score-bar">
+          <div class="score-bar-fill" style="width:${result.defScore}%; background: ${result.type === 'win' ? 'var(--green)' : result.type === 'loss' ? 'var(--red)' : 'var(--gold)'};"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="analysis-grid">
+      <div class="analysis-card">
+        <h5>Defensive Read</h5>
+        <p><strong>${defEffLabel}</strong> — Your call was rated <strong>${Math.round(result.defScore)}/100</strong> for this situation. ${result.defScore >= 60 ? 'Good pre-snap recognition.' : 'Film study will help identify this formation quicker.'}</p>
+      </div>
+      <div class="analysis-card">
+        <h5>Offensive Matchup</h5>
+        <p><strong>${offMatchLabel}</strong> — JHS tendency match: ${result.offScore >= 60 ? 'They ran what the film said they would. Scouting confirmed.' : 'They had a favorable matchup here based on formation tendencies.'}</p>
+      </div>
+      <div class="analysis-card">
+        <h5>Formation Alert</h5>
+        <p>${play['OFF FORM'] === 'Empty Right' ? '⚠️ Empty Right is a 100% pass in JHS film. Match with 4-2-5 or 3-3-5 next time.' : ['PRO','DBL TIGHT WING','DBL TIGHT'].includes(play['OFF FORM']) ? '🏃 Heavy formation — high run tendency. Load the box with Goal Line or 4-3 + Pinch.' : '✅ Balanced formation. React to motion and QB eyes post-snap.'}</p>
+      </div>
+      <div class="analysis-card">
+        <h5>Hash Key</h5>
+        <p>${play.HASH === 'R' ? '⚠️ Right hash = JHS passes here almost exclusively. Extra coverage help to boundary.' : play.HASH === 'M' ? '📍 Middle hash — they run most often here. Keep safety help near box.' : '⚡ Left hash — pass-heavy in film. Cover 3 boundary help is key.'}</p>
+      </div>
+    </div>
+  `;
+
+  overlay.classList.add('visible');
+}
+
+function renderPlayLog() {
+  const section = document.getElementById('playLogSection');
+  const log = document.getElementById('playLog');
+  const count = document.getElementById('playLogCount');
+  section.style.display = 'block';
+  count.textContent = `${gameLog.length} plays`;
+
+  log.innerHTML = gameLog.slice(0,20).map(e => `
+    <div class="play-log-entry">
+      <span class="pl-num">#${e.num}</span>
+      <span class="pl-sit">${e.sit}</span>
+      <span class="pl-form">${e.form}</span>
+      <span class="pl-result ${e.type_outcome === 'win' ? 'def-w' : e.type_outcome === 'loss' ? 'win-r' : ''}">${e.label} ${e.yards !== 0 ? '(' + (e.yards > 0 ? '+' : '') + e.yards + ')' : ''}</span>
+    </div>
+  `).join('');
+}
+
+// ─── EXISTING RENDER FUNCTIONS ────────────────────────────────────────
+function render() {
+  const plays = filterPlays();
+  renderTendencies(plays);
+  renderField(plays);
+  renderTable(plays);
+  renderInsights(plays);
+  updateCallSummary();
+}
+
+function renderTendencies(plays) {
+  const bar = document.getElementById('tendencyBar');
+  if (plays.length === 0) { bar.innerHTML = '<span style="color:var(--gray);font-size:13px;">No matching plays</span>'; return; }
+
+  const runs    = plays.filter(p => p['PLAY TYPE'] === 'Run').length;
+  const passes  = plays.filter(p => p['PLAY TYPE'] === 'Pass').length;
+  const total   = plays.length;
+  const passRate= Math.round((passes / total) * 100);
+
+  const hashes = {L:0,M:0,R:0};
+  plays.forEach(p => { if (p.HASH) hashes[p.HASH]++; });
+  const dominantHash = Object.entries(hashes).sort((a,b) => b[1]-a[1])[0];
+
+  const forms = {};
+  plays.forEach(p => { if (p['OFF FORM']) forms[p['OFF FORM']] = (forms[p['OFF FORM']] || 0) + 1; });
+  const topForm = Object.entries(forms).sort((a,b) => b[1]-a[1])[0];
+
+  const dirs = {L:0,R:0};
+  plays.forEach(p => { if (p['PLAY DIR']) dirs[p['PLAY DIR']]++; });
+  const domDir = dirs.L > dirs.R ? 'Left' : 'Right';
+  const passClass = passRate >= 70 ? 'danger' : passRate <= 40 ? 'safe' : '';
+
+  bar.innerHTML = `
+    <div class="tend-item"><span class="tend-label">Plays</span><span class="tend-badge">${total}</span></div>
+    <div class="tend-item"><span class="tend-label">Pass Rate</span><span class="tend-badge ${passClass}">${passRate}%</span></div>
+    <div class="tend-item"><span class="tend-label">Run/Pass</span><span class="tend-badge">${runs}R / ${passes}P</span></div>
+    <div class="tend-item"><span class="tend-label">Dom. Hash</span><span class="tend-badge">${dominantHash ? dominantHash[0] + ' (' + dominantHash[1] + ')' : '—'}</span></div>
+    ${topForm ? `<div class="tend-item"><span class="tend-label">Top Formation</span><span class="tend-badge">${topForm[0]} (${topForm[1]})</span></div>` : ''}
+    <div class="tend-item"><span class="tend-label">Dom. Direction</span><span class="tend-badge">${domDir}</span></div>
+  `;
+}
+
+function renderField(plays) {
+  const canvas = document.getElementById('fieldCanvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.fillStyle = '#1a4728';
+  ctx.fillRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.lineWidth = 1;
+  const margins = {left: 60, right: 60};
+  const fieldW = W - margins.left - margins.right;
+  for (let y = 0; y <= 100; y += 10) {
+    const x = margins.left + (y / 100) * fieldW;
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    const label = y <= 50 ? y : 100 - y;
+    ctx.fillStyle = 'rgba(255,255,255,0.4)';
+    ctx.font = '10px Barlow Condensed';
+    ctx.textAlign = 'center';
+    if (y > 0 && y < 100) ctx.fillText(label, x, H - 4);
+  }
+  const hashY = { L: H * 0.28, M: H * 0.5, R: H * 0.72 };
+
+  // Draw randomized play marker if active
+  if (currentOffensePlay) {
+    const cp = currentOffensePlay;
+    const yl = cp['YARD LN'];
+    let fieldPct = (50 + yl) / 100;
+    fieldPct = Math.max(0.01, Math.min(0.99, fieldPct));
+    const x = margins.left + fieldPct * fieldW;
+    const y = hashY[cp.HASH] || H * 0.5;
+    // Pulsing star marker
+    ctx.beginPath(); ctx.arc(x, y, 12, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(240,180,41,0.2)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(240,180,41,0.6)'; ctx.fill();
+    ctx.strokeStyle = '#f0b429'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(x, y, 11, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = '#f0b429';
+    ctx.font = 'bold 8px Barlow Condensed';
+    ctx.textAlign = 'center';
+    ctx.fillText('LIVE', x, y + 3);
+  }
+
+  plays.forEach(p => {
+    if (!p['YARD LN'] || !p.HASH) return;
+    let fieldPct = (50 + p['YARD LN']) / 100;
+    fieldPct = Math.max(0.01, Math.min(0.99, fieldPct));
+    const x = margins.left + fieldPct * fieldW;
+    const y = hashY[p.HASH] || H * 0.5;
+    const isPass = p['PLAY TYPE'] === 'Pass';
+    const result = p.RESULT || '';
+    let color;
+    if (result.includes('TD')) color = '#f0b429';
+    else if (result.includes('Interception')) color = '#2d9b5a';
+    else if (result.includes('Sack')) color = '#2d9b5a';
+    else if (isPass) color = '#7ab0f5';
+    else color = '#4ec88a';
+    if (!isPass) {
+      ctx.fillStyle = color + 'aa';
+      ctx.fillRect(x - 4, y - 4, 8, 8);
+    } else {
+      ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = color + 'aa'; ctx.fill();
+    }
+  });
+
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.font = 'bold 10px Barlow Condensed'; ctx.textAlign = 'left';
+  ctx.fillText('L', 4, hashY.L + 4);
+  ctx.fillText('M', 4, hashY.M + 4);
+  ctx.fillText('R', 4, hashY.R + 4);
+  const lx = W - 56;
+  ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(lx - 4, 6, 62, 82);
+  ctx.font = '9px Barlow';
+  ctx.fillStyle = '#7ab0f5'; ctx.fillText('● Pass', lx, 20);
+  ctx.fillStyle = '#4ec88a'; ctx.fillText('■ Run', lx, 34);
+  ctx.fillStyle = '#f0b429'; ctx.fillText('● TD', lx, 48);
+  ctx.fillStyle = '#2d9b5a'; ctx.fillText('● INT/Sack', lx, 62);
+  ctx.fillStyle = '#f0b429'; ctx.fillText('◉ LIVE', lx, 76);
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(margins.left, 0); ctx.lineTo(margins.left, H); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W - margins.right, 0); ctx.lineTo(W - margins.right, H); ctx.stroke();
+  ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.font = '11px Barlow Condensed'; ctx.textAlign = 'center';
+  ctx.fillText('← OWN GOAL', margins.left / 2, H / 2);
+  ctx.fillText('OPP GOAL →', W - margins.right / 2, H / 2);
+}
+
+function renderTable(plays) {
+  document.getElementById('playCount').textContent = plays.length;
+  const wrap = document.getElementById('playTableWrap');
+  if (plays.length === 0) { wrap.innerHTML = '<div class="no-plays">No plays match the current filters.</div>'; return; }
+  const rows = plays.slice(0, 30).map(p => {
+    const r = p.RESULT || '';
+    let resultClass = '';
+    if (r.includes('TD')) resultClass = 'tag-td';
+    else if (r.includes('Interception') || r.includes('Sack')) resultClass = 'tag-int';
+    const gnls = p['GN/LS'];
+    const gnClass = gnls > 0 ? 'tag-pos' : gnls < 0 ? 'tag-neg' : '';
+    return `<tr>
+      <td style="color:var(--gray);font-size:11px;">#${p['PLAY #']}</td>
+      <td>Q${p.QTR}</td>
+      <td>${p.DN || '—'} & ${p.DIST || '—'}</td>
+      <td>${p.HASH || '—'}</td>
+      <td style="font-size:11px;">${p['YARD LN'] < 0 ? 'Own ' + Math.abs(p['YARD LN']) : 'Opp ' + p['YARD LN']}</td>
+      <td>${p['OFF FORM'] || '<span style="color:var(--gray)">—</span>'}</td>
+      <td><span class="tag ${p['PLAY TYPE'] === 'Run' ? 'tag-run' : 'tag-pass'}">${p['PLAY TYPE']}</span></td>
+      <td class="${resultClass}" style="font-size:12px;">${r}</td>
+      <td class="${gnClass}">${gnls !== null && gnls !== undefined ? (gnls > 0 ? '+' + gnls : gnls) : '—'}</td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML = `<table class="play-table"><thead><tr>
+    <th>#</th><th>Qtr</th><th>Dn/Dist</th><th>Hash</th><th>Field</th><th>Formation</th><th>Type</th><th>Result</th><th>Yds</th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderInsights(plays) {
+  const area = document.getElementById('insightsArea');
+  if (plays.length === 0) { area.innerHTML = ''; return; }
+  const runs = plays.filter(p => p['PLAY TYPE'] === 'Run').length;
+  const passes = plays.filter(p => p['PLAY TYPE'] === 'Pass').length;
+  const total = plays.length;
+  const passRate = Math.round((passes / total) * 100);
+  const insights = [];
+  const emptyRight = plays.filter(p => p['OFF FORM'] === 'Empty Right');
+  if (emptyRight.length > 0) insights.push({type:'danger', title:'⚠ Empty Right Alert', text:`${emptyRight.length} Empty Right plays — ALL were passes (100%). Go nickel/dime.`});
+  if (passRate >= 75) insights.push({type:'warn', title:'📡 Pass-Heavy', text:`${passRate}% pass rate. Cover 4 or Man Free. Watch crossing routes.`});
+  if (passRate <= 35) insights.push({type:'good', title:'🏃 Run Defense Priority', text:`Only ${passRate}% pass rate. Load the box — Goal Line or Pinch.`});
+  const midHash = plays.filter(p => p.HASH === 'M').length;
+  if (midHash / total > 0.6) insights.push({type:'warn', title:'📍 Middle Hash', text:`${Math.round(midHash/total*100)}% of plays from middle hash. They run from here most often.`});
+  const rzPlays = plays.filter(p => getZone(p['YARD LN']) === 'rz');
+  if (rzPlays.length > 0) {
+    const rzRun = rzPlays.filter(p => p['PLAY TYPE'] === 'Run').length;
+    insights.push({type: rzRun > rzPlays.length/2 ? 'danger' : 'warn', title:'🎯 Red Zone', text:`${rzPlays.length} RZ plays — ${rzRun} run, ${rzPlays.length - rzRun} pass. DBL TIGHT = goal line push.`});
+  }
+  if (insights.length === 0) insights.push({type:'good', title:'✅ Balanced', text:'No strong tendency. Stay in base, react to pre-snap keys.'});
+  area.innerHTML = insights.map(i => `
+    <div class="insight-box ${i.type === 'danger' ? '' : i.type}">
+      <div class="insight-title">${i.title}</div>
+      <div class="insight-text">${i.text}</div>
+    </div>`).join('');
+}
+
+function updateCallSummary() {
+  document.getElementById('callFront').textContent = defCall.front;
+  document.getElementById('callCov').textContent = defCall.cov;
+  document.getElementById('callBlitz').textContent = defCall.blitz;
+  document.getElementById('callContain').textContent = defCall.contain;
+}
+
+// ─── EVENT LISTENERS ─────────────────────────────────────────────────
+document.querySelectorAll('.btn[data-group]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const group = btn.dataset.group;
+    document.querySelectorAll(`.btn[data-group="${group}"]`).forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filters[group] = btn.dataset.val;
+    render();
+  });
+});
+
+document.getElementById('formFilter').addEventListener('change', e => {
+  filters.form = e.target.value; render();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  Object.keys(filters).forEach(k => filters[k] = 'any');
+  document.querySelectorAll('.btn[data-group]').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.val === 'any') btn.classList.add('active');
+  });
+  document.getElementById('formFilter').value = 'any';
+  currentOffensePlay = null;
+  document.getElementById('offenseDisplay').style.display = 'none';
+  document.getElementById('submitCallBtn').disabled = true;
+  render();
+});
+
+document.querySelectorAll('.def-btn[data-group]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const group = btn.dataset.group;
+    document.querySelectorAll(`.def-btn[data-group="${group}"]`).forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    defCall[group] = btn.dataset.val;
+    updateCallSummary();
+    renderInsights(filterPlays());
+  });
+});
+
+document.getElementById('randomizeBtn').addEventListener('click', randomizeOffense);
+document.getElementById('submitCallBtn').addEventListener('click', submitCall);
+
+document.getElementById('closeModal').addEventListener('click', () => {
+  document.getElementById('resultOverlay').classList.remove('visible');
+  render(); // re-render field without the live marker
+});
+
+document.getElementById('resultOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('resultOverlay')) {
+    document.getElementById('resultOverlay').classList.remove('visible');
+    render();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
